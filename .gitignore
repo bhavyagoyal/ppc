@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.ipynb
+slurm.*
 
 # C extensions
 *.so
@@ -115,6 +116,7 @@ data
 *.pkl.json
 *.log.json
 work_dirs/
+work_dir_py/
 exps/
 *~
 mmdet3d/.mim

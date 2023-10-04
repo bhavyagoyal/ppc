@@ -61,6 +61,7 @@ class BasePointSAModule(nn.Module):
 
         assert len(radii) == len(sample_nums) == len(mlp_channels)
         assert pool_mod in ['max', 'avg']
+        #assert pool_mod in ['max', 'avg', 'avgmax']
         assert isinstance(fps_mod, list) or isinstance(fps_mod, tuple)
         assert isinstance(fps_sample_range_list, list) or isinstance(
             fps_sample_range_list, tuple)
@@ -167,6 +168,11 @@ class BasePointSAModule(nn.Module):
             # (B, C, N, 1)
             new_features = F.avg_pool2d(
                 features, kernel_size=[1, features.size(3)])
+        #elif self.pool_mod == 'avgmax':
+        #    # (B, C, N, 1)
+        #    new_features = F.avg_pool2d(
+        #        features, kernel_size=[1, features.size(3)]) + F.max_pool2d(
+        #        features, kernel_size=[1, features.size(3)])
         else:
             raise NotImplementedError
 
@@ -176,6 +182,8 @@ class BasePointSAModule(nn.Module):
         self,
         points_xyz: Tensor,
         features: Optional[Tensor] = None,
+        points_xyz_nonfps: Optional[Tensor] = None,
+        features_nonfps: Optional[Tensor] = None,
         indices: Optional[Tensor] = None,
         target_xyz: Optional[Tensor] = None,
     ) -> Tuple[Tensor]:
@@ -202,6 +210,13 @@ class BasePointSAModule(nn.Module):
         """
         new_features_list = []
 
+        if(points_xyz_nonfps is not None):
+            points_xyz_gather = points_xyz_nonfps
+            features_gather = features_nonfps
+        else:
+            points_xyz_gather = points_xyz
+            features_gather = features
+            
         # sample points, (B, num_point, 3), (B, num_point)
         new_xyz, indices = self._sample_points(points_xyz, features, indices,
                                                target_xyz)
@@ -211,7 +226,7 @@ class BasePointSAModule(nn.Module):
             # - grouped_features: (B, C, num_point, nsample)
             # - grouped_xyz: (B, 3, num_point, nsample)
             # - grouped_idx: (B, num_point, nsample)
-            grouped_results = self.groupers[i](points_xyz, new_xyz, features)
+            grouped_results = self.groupers[i](points_xyz_gather, new_xyz, features_gather)
 
             # (B, mlp[-1], num_point, nsample)
             new_features = self.mlps[i](grouped_results)

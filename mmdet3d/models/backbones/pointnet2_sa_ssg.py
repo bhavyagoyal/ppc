@@ -35,9 +35,12 @@ class PointNet2SASSG(BasePointNet):
 
     def __init__(self,
                  in_channels: int,
+                 sa_mask: int = None,
+                 clip: float = None,
                  num_points: Sequence[int] = (2048, 1024, 512, 256),
                  radius: Sequence[float] = (0.2, 0.4, 0.8, 1.2),
                  num_samples: Sequence[int] = (64, 32, 16, 16),
+                 #fps_sample_range_list: List[int] = None,
                  sa_channels: Sequence[Sequence[int]] = ((64, 64, 128),
                                                          (128, 128, 256),
                                                          (128, 128, 256),
@@ -54,6 +57,9 @@ class PointNet2SASSG(BasePointNet):
         super().__init__(init_cfg=init_cfg)
         self.num_sa = len(sa_channels)
         self.num_fp = len(fp_channels)
+        self.sa_mask = sa_mask
+        self.clip = clip
+        self.in_channels = in_channels
 
         assert len(num_points) == len(radius) == len(num_samples) == len(
             sa_channels)
@@ -75,6 +81,7 @@ class PointNet2SASSG(BasePointNet):
                     num_sample=num_samples[sa_index],
                     mlp_channels=cur_sa_mlps,
                     norm_cfg=norm_cfg,
+                    #fps_sample_range_list = [-1] if fps_sample_range_list is None else [fps_sample_range_list[sa_index]],
                     cfg=sa_cfg))
             skip_channel_list.append(sa_out_channel)
             sa_in_channel = sa_out_channel
@@ -91,7 +98,7 @@ class PointNet2SASSG(BasePointNet):
                 fp_source_channel = cur_fp_mlps[-1]
                 fp_target_channel = skip_channel_list.pop()
 
-    def forward(self, points: Tensor) -> Dict[str, List[Tensor]]:
+    def forward(self, points: Tensor, points_nonfps: Tensor = None) -> Dict[str, List[Tensor]]:
         """Forward pass.
 
         Args:
@@ -109,18 +116,36 @@ class PointNet2SASSG(BasePointNet):
                     input points.
         """
         xyz, features = self._split_point_feats(points)
+        xyz_nonfps, features_nonfps = None, None
+        if(points_nonfps!=None):
+            xyz_nonfps, features_nonfps = self._split_point_feats(points_nonfps)
+            features_nonfps = features_nonfps[:,:self.in_channels-3,:]
 
         batch, num_points = xyz.shape[:2]
         indices = xyz.new_tensor(range(num_points)).unsqueeze(0).repeat(
             batch, 1).long()
 
+        point_features = features
         sa_xyz = [xyz]
-        sa_features = [features]
+        sa_features = [features[:,:self.in_channels-3,:]]
         sa_indices = [indices]
 
         for i in range(self.num_sa):
-            cur_xyz, cur_features, cur_indices = self.SA_modules[i](
-                sa_xyz[i], sa_features[i])
+            if(i==0):
+                cur_xyz, cur_features, cur_indices = self.SA_modules[i](
+                    sa_xyz[i], sa_features[i], xyz_nonfps, features_nonfps)
+            else:
+                cur_xyz, cur_features, cur_indices = self.SA_modules[i](
+                    sa_xyz[i], sa_features[i])
+            if(i==self.num_sa-1 and self.sa_mask!=None):
+                    #conf = torch.take(sa_features[0][:,1,:], cur_indices.long())
+                    conf = torch.take(point_features[:,self.sa_mask,:], cur_indices.long())
+                    if(self.clip is not None):
+                        conf_high_count = int(self.clip*conf.shape[1])
+                        conf_high = conf.sort(-1)[0][:,conf_high_count:conf_high_count+1]
+                        conf = torch.clamp( conf, min=None, max=conf_high )
+                    conf = conf/conf.mean(-1,True)
+                    cur_features = cur_features*conf[:,None,:]
             sa_xyz.append(cur_xyz)
             sa_features.append(cur_features)
             sa_indices.append(
@@ -143,5 +168,6 @@ class PointNet2SASSG(BasePointNet):
             fp_indices=fp_indices,
             sa_xyz=sa_xyz,
             sa_features=sa_features,
+            point_features=point_features,
             sa_indices=sa_indices)
         return ret

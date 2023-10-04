@@ -59,6 +59,8 @@ class VoteHead(BaseModule):
                  bbox_coder: Union[ConfigDict, dict],
                  train_cfg: Optional[dict] = None,
                  test_cfg: Optional[dict] = None,
+                 proposals_conf: int = None,
+                 clip: float = None,
                  vote_module_cfg: Optional[dict] = None,
                  vote_aggregation_cfg: Optional[dict] = None,
                  pred_layer_cfg: Optional[dict] = None,
@@ -73,6 +75,8 @@ class VoteHead(BaseModule):
                  init_cfg: Optional[dict] = None):
         super(VoteHead, self).__init__(init_cfg=init_cfg)
         self.num_classes = num_classes
+        self.proposals_conf = proposals_conf
+        self.clip = clip
         self.train_cfg = train_cfg
         self.test_cfg = test_cfg
 
@@ -343,7 +347,7 @@ class VoteHead(BaseModule):
             batch_size, num_seed = seed_points.shape[:2]
             sample_indices = seed_points.new_tensor(
                 torch.randint(0, num_seed, (batch_size, self.num_proposal)),
-                dtype=torch.int32)
+                dtype=torch.int32, device=seed_points.device)
             aggregation_inputs = dict(
                 points_xyz=vote_points,
                 features=vote_features,
@@ -372,6 +376,17 @@ class VoteHead(BaseModule):
         decode_res = self.bbox_coder.split_pred(cls_predictions,
                                                 reg_predictions,
                                                 aggregated_points)
+        
+        if(self.proposals_conf!=None):
+            conf_all = feat_dict['point_features'][:,self.proposals_conf,:]
+            conf_all = torch.gather(conf_all, 1, feat_dict['sa_indices'][2])
+            conf = torch.gather(conf_all, 1, aggregated_indices.type(torch.int64))
+            if(self.clip is not None):
+                conf_high_count = int(self.clip*conf.shape[1])
+                conf_high = conf.sort(-1)[0][:,conf_high_count:conf_high_count+1]
+                conf = torch.clamp( conf, min=None, max=conf_high )
+            conf = conf/conf.mean(-1,True)
+            decode_res['proposals_conf'] = conf
         results.update(decode_res)
         return results
 
@@ -418,6 +433,9 @@ class VoteHead(BaseModule):
                                               bbox_preds_dict['vote_points'],
                                               bbox_preds_dict['seed_indices'],
                                               vote_target_masks, vote_targets)
+
+        if(self.proposals_conf!=None):
+            objectness_weights = objectness_weights*bbox_preds_dict['proposals_conf']
 
         # calculate objectness loss
         objectness_loss = self.loss_objectness(
@@ -747,6 +765,8 @@ class VoteHead(BaseModule):
         stack_points = torch.stack(points)
         obj_scores = F.softmax(bbox_preds_dict['obj_scores'], dim=-1)[..., -1]
         sem_scores = F.softmax(bbox_preds_dict['sem_scores'], dim=-1)
+        if(self.proposals_conf!=None):
+            obj_scores = obj_scores*bbox_preds_dict['proposals_conf']
         bbox3d = self.bbox_coder.decode(bbox_preds_dict)
 
         batch_size = bbox3d.shape[0]

@@ -238,8 +238,11 @@ class Det3DLocalVisualizer(DetLocalVisualizer):
         pcd = geometry.PointCloud()
         if mode == 'xyz':
             pcd.points = o3d.utility.Vector3dVector(points[:, :3])
-            points_colors = np.tile(
-                np.array(points_color), (points.shape[0], 1))
+            if(type(points_color)==tuple):
+                points_colors = np.tile(
+                    np.array(points_color), (points.shape[0], 1))
+            else:
+                points_colors = points_color
         elif mode == 'xyzrgb':
             pcd.points = o3d.utility.Vector3dVector(points[:, :3])
             points_colors = points[:, 3:6]
