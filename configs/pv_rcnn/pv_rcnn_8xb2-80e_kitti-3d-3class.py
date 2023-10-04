@@ -36,6 +36,7 @@ train_pipeline = [
         backend_args=backend_args),
     dict(type='LoadAnnotations3D', with_bbox_3d=True, with_label_3d=True),
     dict(type='ObjectSample', db_sampler=db_sampler, use_ground_plane=True),
+    #dict(type='PointSample', num_points=100000),
     dict(type='RandomFlip3D', flip_ratio_bev_horizontal=0.5),
     dict(
         type='GlobalRotScaleTrans',
@@ -55,6 +56,7 @@ test_pipeline = [
         load_dim=4,
         use_dim=4,
         backend_args=backend_args),
+    #dict(type='PointSample', num_points=100000),
     dict(
         type='MultiScaleFlipAug3D',
         img_scale=(1333, 800),
@@ -323,7 +325,7 @@ train_dataloader = dict(
     num_workers=2,
     dataset=dict(dataset=dict(pipeline=train_pipeline, metainfo=metainfo)))
 test_dataloader = dict(dataset=dict(pipeline=test_pipeline, metainfo=metainfo))
-eval_dataloader = dict(dataset=dict(pipeline=test_pipeline, metainfo=metainfo))
+val_dataloader = dict(dataset=dict(pipeline=test_pipeline, metainfo=metainfo))
 lr = 0.001
 optim_wrapper = dict(optimizer=dict(lr=lr))
 param_scheduler = [

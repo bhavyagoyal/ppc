@@ -175,11 +175,12 @@ train_pipeline = [
         backend_args=backend_args),
     dict(type='LoadImageFromFile', backend_args=backend_args),
     dict(
-        type='LoadAnnotations3D',
-        with_bbox=True,
-        with_label=True,
-        with_bbox_3d=True,
-        with_label_3d=True),
+        type='LoadAnnotations3D'),
+   #     with_bbox=True,
+   #     with_label=True,
+   #     with_bbox_3d=True,
+   #     with_label_3d=True),
+    dict(type='LoadAnnotations', with_bbox=True),
     dict(type='Resize', scale=(1333, 600), keep_ratio=True),
     dict(
         type='RandomFlip3D',
@@ -200,7 +201,6 @@ train_pipeline = [
         ]))
 ]
 test_pipeline = [
-    dict(type='LoadImageFromFile', backend_args=backend_args),
     dict(
         type='LoadPointsFromFile',
         coord_type='DEPTH',
@@ -208,6 +208,7 @@ test_pipeline = [
         load_dim=6,
         use_dim=[0, 1, 2],
         backend_args=backend_args),
+    dict(type='LoadImageFromFile', backend_args=backend_args),
     dict(type='Resize', scale=(1333, 600), keep_ratio=True),
     dict(type='PointSample', num_points=20000),
     dict(type='Pack3DDetInputs', keys=['img', 'points'])

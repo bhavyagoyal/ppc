@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#SBATCH --partition=research
+#SBATCH --cpus-per-task=2
+###SBATCH --exclude=euler[01-28]
+#SBATCH --exclude=euler21
+#SBATCH --mem=36G
+#SBATCH --time=1:0:0
+#SBATCH -o plotlogs/slurm.%j.%N.out # STDOUT
+#SBATCH -e plotlogs/slurm.%j.%N.err # STDERR
+#SBATCH --job-name=plotmmdt
+
+module load conda/miniforge/23.1.0
+bootstrap_conda
+conda activate openmmlab
+
+#cd work_dir_py/sbr/
+#cd work_dir_py/kitti/pointpillar/3class/
+cd work_dir_py/kitti/pvrcnn/3class/
+#cd work_dir_py/sbr/
+#cd work_dir_py/imvotenet/
+
+#python ../../tools/analysis_tools/analyze_logs.py plot_curve 0.048/joint/*  --eval --keys mAP_0.25 --out 0.048.pdf
+#python ../../tools/analysis_tools/analyze_logs.py plot_curve 0.3/joint/ppcthresh/* 0.3/joint/{first50000_spupdatedX/first50000_spupdated0003,thresh/thresh50000_11}  --eval --keys mAP_0.25 --out 0.3_ppcthresh.pdf
+#python ../../tools/analysis_tools/analyze_logs.py plot_curve 0.3/joint/{first50000_spupdatedX/first50000_spupdated0003,thresh/thresh50000_11} 0.3/jointDP/first50000_spupdated*  --eval --keys mAP_0.25 --out 0.3_DP.pdf
+#python ../../tools/analysis_tools/analyze_logs.py plot_curve baseline* 0.3/jointDP/* --eval --keys mAP_0.25 --out 0.3_fusionsunrgbd.pdf
+#python ../../tools/analysis_tools/analyze_logs.py plot_curve 0.3/jointDP/{first50000_spupdated0003_post,first50000_spupdated0003_post_featprobnpd*,first50000_spupdated0003_post_newfps0005,first50000_spupdated0003_post_attnnpd*}  --eval --keys mAP_0.25 --out 0.3_sec2.pdf
+#python ../../tools/analysis_tools/analyze_logs.py plot_curve 0.3/jointDP/first50000_spupdated0003_post*  --eval --keys mAP_0.25 --out 0.3_sec2.pdf
+#
+
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline_bk joint_1flux/*/baseline*  --eval --keys "Overall_3D_AP11_moderate" --out 1flux_baseline.pdf
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline_bk joint_1flux/*/npupdated*  --eval --keys "Overall_3D_AP11_moderate" --out 1flux_ppc.pdf
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline_bk joint_5flux2048/*/*  --eval --keys "Overall_3D_AP11_moderate" --out 5flux2048.pdf
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline joint2048/0.3/{baseline*,npupdated*}  --eval --keys "Overall_3D_AP11_moderate" --out 2048.pdf
+python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline_repeat joint_5fluxunder2048/0.3/{baseline,npupdated_ad01,thresh/thresh_ad10}  --eval --keys "Overall_3D_AP11_moderate" --out 5fluxunder2048.pdf
+
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline_repeat joint_5fluxunder2048/0.3/{baseline*,npupdated00001,npupdated_ad01*}  --eval --keys "Overall_3D_AP11_moderate" --out 5fluxunder2048_adaptive.pdf
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline_repeat joint_5fluxunder2048/0.3/{baseline,npupdated_ad01,thresh/thresh_ad10,thresh/thresh_ad15}  --eval --keys "Overall_3D_AP11_moderate" --out 5fluxunder2048_thresh.pdf
+
+#joint_5fluxunder2048/0.3/{baseline,npupdated00001,npupdated_ad05} 
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline joint_5fluxonlyunder2048/*/*  --eval --keys "Overall_3D_AP11_moderate" --out 5fluxonlyunder2048.pdf
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline *_*_2048/0.3/baseline  --eval  --keys "Overall_3D_AP11_moderate" --out baseline_single2048.pdf
+
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve  baseline_bk rupdated* --eval --keys "Overall_3D_AP40_moderate" --out test.pdf
+
+#python ../../../../tools/analysis_tools/analyze_logs.py plot_curve baseline_bk joint/0.001/{baseline,npupdated0001,npupdated0001_postp} --eval --eval-interval 2 --keys "Overall_3D_AP11_moderate" --out test.pdf

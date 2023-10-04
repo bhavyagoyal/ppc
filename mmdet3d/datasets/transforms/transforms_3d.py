@@ -19,7 +19,8 @@ from mmdet3d.structures import (CameraInstance3DBoxes, DepthInstance3DBoxes,
 from mmdet3d.structures.ops import box_np_ops
 from mmdet3d.structures.points import BasePoints
 from .data_augment_utils import noise_per_object_v3_
-
+from itertools import islice, cycle
+#from pytorch3d.ops.ball_query import ball_query
 
 @TRANSFORMS.register_module()
 class RandomDropPointsColor(BaseTransform):
@@ -1030,11 +1031,27 @@ class PointSample(BaseTransform):
 
     def __init__(self,
                  num_points: int,
+                 #probability_sampling: bool = False,
+                 #topk_sampling: bool = False,
+                 firstk_sampling: bool = False, # first n points
+                 thresh_sampling: float = None, # n points above threshold
+                 threshall_sampling: float = None, # all points above threshold
+                 ad_threshall_sampling: bool = False, # adaptive threshold
+                 thresh_index: int = 5, # index for threshold
+                 #pre_sort: int = None,
                  sample_range: Optional[float] = None,
                  replace: bool = False) -> None:
         self.num_points = num_points
         self.sample_range = sample_range
         self.replace = replace
+        #self.probability_sampling = probability_sampling
+        #self.topk_sampling = topk_sampling
+        self.firstk_sampling = firstk_sampling
+        self.thresh_sampling = thresh_sampling
+        self.threshall_sampling = threshall_sampling
+        self.ad_threshall_sampling = ad_threshall_sampling
+        self.thresh_index = thresh_index
+        #self.pre_sort = pre_sort
 
     def _points_random_sampling(
         self,
@@ -1065,10 +1082,12 @@ class PointSample(BaseTransform):
                 - points (:obj:`BasePoints`): 3D Points.
                 - choices (np.ndarray, optional): The generated random samples.
         """
+
         if isinstance(num_samples, float):
             assert num_samples < 1
             num_samples = int(
                 np.random.uniform(self.num_points, 1.) * points.shape[0])
+            #num_samples = int(self.num_points * points.shape[0])
 
         if not replace:
             replace = (points.shape[0] < num_samples)
@@ -1084,7 +1103,42 @@ class PointSample(BaseTransform):
                     far_inds, num_samples, replace=False)
             point_range = near_inds
             num_samples -= len(far_inds)
-        choices = np.random.choice(point_range, num_samples, replace=replace)
+        #if(self.probability_sampling):
+        #    # converting to np array to avoid floating point precision errors
+        #    # which makes sum of probability not 1
+        #    probs = np.array(points.tensor[:,points.attribute_dims['sampling_prob']])
+        #    probs = probs/probs.sum(-1, keepdims=True)
+        #    choices = np.random.choice(point_range, num_samples, replace=replace, p = probs)
+        #elif(self.topk_sampling):
+        #    probs = points.tensor[:,4]
+        #    choices = np.argsort(-1*probs)[:num_samples]
+        if(self.firstk_sampling):
+            choices = np.arange(min(num_samples, len(points)))
+            #if(num_samples>len(points)):
+            #    first_points = torch.tile(points.tensor[0:1,:], (num_samples-len(points), 1))
+            #    #points = BasePoints(torch.vstack((points.tensor, first_points)), 9)
+            #    points.tensor = torch.vstack((points.tensor, first_points))
+            #choices = np.arange(num_samples)
+        elif(self.thresh_sampling is not None):
+            probs = points.tensor[:,self.thresh_index]
+            probs_selected = np.where(probs>self.thresh_sampling)[0]
+            choices = np.array(list(islice(cycle(probs_selected), num_samples)))
+        elif(self.threshall_sampling is not None):
+            probs = points.tensor[:,self.thresh_index]
+            thresh_score = self.threshall_sampling
+            if(self.ad_threshall_sampling):
+                thresh_score = min(probs.max(), thresh_score*probs.min())
+            probs_selected = np.where(probs>=thresh_score)[0]
+            choices = probs_selected[:num_samples]
+        else:
+            choices = np.random.choice(point_range, num_samples, replace=replace)
+
+
+        #if(self.pre_sort is not None):
+        #    probs = points.tensor[:,self.pre_sort]
+        #    probs = probs[choices]
+        #    choices = choices[np.argsort(-1*probs)]
+
         if sample_range is not None and not replace:
             choices = np.concatenate((far_inds, choices))
             # Shuffle points after sampling

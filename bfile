@@ -1,0 +1,214 @@
+#!/usr/bin/env bash
+#SBATCH --partition=research
+###SBATCH --partition=euler-next
+#SBATCH --cpus-per-task=6
+#SBATCH --gres=gpu:2
+#SBATCH --mem=32G
+#SBATCH --time=72:0:0
+
+###SBATCH --nodelist=euler21
+###SBATCH --exclude=euler05,euler07,euler09
+### errors
+### euler07,euler05
+### not public
+###euler06,euler13
+### excludes 1080 and 2070s
+###SBATCH --exclude=euler04,euler05,euler06,euler07,euler08,euler09,euler11,euler12,euler14
+### excludes 1080 2070s 2080ti
+#SBATCH --exclude=euler04,euler05,euler06,euler07,euler08,euler09,euler11,euler12,euler13,euler14,euler15,euler16
+
+#SBATCH -o slurm.%j.%N.out # STDOUT
+#SBATCH -e slurm.%j.%N.err # STDERR
+#SBATCH --job-name=trainmm
+###SBATCH --no-requeue
+
+###export TORCH_CUDA_ARCH_LIST="7.0 7.5 8.0 8.6 9.0+PTX" 
+
+# Environement openmmlab setup used
+#conda 23.3.1, cuda11.8
+#conda install pytorch==2.0.0 torchvision==0.15.0 torchaudio==2.0.0 pytorch-cuda=11.8 -c pytorch -c nvidia
+#install mmcv without mim, using pip instead
+#pip install "mmcv>=2.0.1" -f  https://download.openmmlab.com/mmcv/dist/cu118/torch2.0.0/index.html
+#pip install mmdet==3.1.0
+#git clone https://github.com/open-mmlab/mmdetection3d.git -b dev-1.x
+## "-b dev-1.x" means checkout to the `dev-1.x` branch.
+#cd mmdetection3d
+#pip install -v -e .
+
+# Environement openmmlab3 setup used
+#conda 23.3.1, cuda11.8
+# pip install torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cu118
+# mmcv built v2.1.0 manually with '-arch=sm_90' flag in setup.py line 161 for H100 gpus. otherwise prebuilt wheels are ok
+# git clone https://github.com/open-mmlab/mmcv.git -b v2.1.0
+# cd mmcv, edit setup.py, pip install -v -e .
+# pip install mmdet==3.3.0
+# git clone https://github.com/open-mmlab/mmdetection3d.git -b dev-1.x
+# cd mmdetection3d, pip install -v -e .
+
+
+# Environement openmmlab100rc5 setup used
+#conda 23.3.1, cuda11.3.1
+#pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu113
+#pip install "mmcv-full==1.5.2" -f  https://download.openmmlab.com/mmcv/dist/cu113/torch1.11.0/index.html
+#pip install mmdet==2.28.0
+#pip install mmsegmentation==0.28.0
+#pip install setuptools==69.5.1
+#pip install numpy==1.23.5
+#pip install yapf==0.40.1
+# pip install mmdet==3.3.0
+# git clone https://github.com/open-mmlab/mmdetection3d.git change to 1.0.0rc5
+# cd mmdetection3d, pip install -v -e .
+
+
+# Load Environment
+#module load anaconda/mini/23.3.1
+module load conda/miniforge/23.1.0
+module load nvidia/cuda/11.8.0
+bootstrap_conda
+conda activate openmmlab2
+
+export CUDA_HOME=/opt/apps/cuda/x86_64/11.8.0/default
+export NCCL_P2P_DISABLE=1
+export NCCL_IB_DISABLE=1
+
+# Print GPU usage
+#nvidia-smi
+>&2 nvidia-smi --query-gpu=gpu_name,utilization.gpu,memory.free,memory.used --format=csv -l 1000 &
+
+GPUS=2
+PORTUSED=$(( $RANDOM + 10000 ))
+#SBR="1_50"
+SBR=$1
+
+EXPERIMENT=work_dir_py/kitti/pointpillar/3class/sbr8192/0.001/${SBR}/testing
+#EXPERIMENT=work_dir_py/kitti/pointpillar/3class/num_points/baseline_points01
+EXPERIMENT=work_dir_py/kitti/pvrcnn/3class/joint_5fluxunder2048/0.3/npupdated_ad01_nofeat
+#thresh/thresh_ad11
+#EXPERIMENT=work_dir_py/imvotenet/0.3/jointDP/thresh50000_11
+#first50000_spupdated0003_post
+EXPERIMENT=work_dir_py/sbr/0.3/jointDP/first50000_spupdated_ad125_post
+EXPERIMENT=work_dir_py/fcaf3d/0.3/baseline
+#EXPERIMENT=work_dir_py/kitti/pvrcnn/3class/baseline_repeat
+#EXPERIMENT=work_dir_py/kitti/pvrcnn/3class/${SBR}_2048/0.3/baseline
+#EXPERIMENT=work_dir_py/kittifusion/mvxnet/baseline_b4
+
+#DATAPATH=points_min2/0.3/argmax-filtering-sbr/${SBR}/
+DATAPATH=points_cleanorig/
+
+#DATAPATH=training/points2048_r025_dist10/0.3/argmax-filtering-sbr/${SBR}
+#DATAPATH=training/points2048_r025_dist10/0.3/argmax-filtering-sbr/
+
+PORT=${PORTUSED} ./tools/dist_train.sh configs/fcaf3d/fcaf3d_2xb8_sunrgbd-3d-10class.py ${GPUS} --resume --cfg-options \
+	work_dir=${EXPERIMENT} \
+	default_hooks.checkpoint.interval=1 \
+	train_dataloader.dataset.dataset.data_prefix.pts=${DATAPATH} \
+	val_dataloader.dataset.data_prefix.pts=${DATAPATH} \
+	train_dataloader.dataset.dataset.pipeline.0.load_dim=8 \
+	val_dataloader.dataset.pipeline.0.load_dim=8 \
+	train_dataloader.dataset.dataset.pipeline.0.use_dim="[0,1,2]" \
+	val_dataloader.dataset.pipeline.0.use_dim="[0,1,2]" \
+
+
+ 
+#PORT=${PORTUSED} ./tools/dist_train.sh configs/votenet/votenet_8xb16_sunrgbd-3d.py ${GPUS} --auto-scale-lr --resume --cfg-options \
+#	work_dir=${EXPERIMENT} \
+#	default_hooks.checkpoint.interval=1 \
+#	train_dataloader.dataset.dataset.data_prefix.pts=${DATAPATH} \
+#	val_dataloader.dataset.data_prefix.pts=${DATAPATH} \
+#	train_dataloader.dataset.dataset.pipeline.0.load_dim=8 \
+#	val_dataloader.dataset.pipeline.0.load_dim=8 \
+#	train_dataloader.dataset.dataset.pipeline.0.use_dim="[0,1,2,4,5,6,7]" \
+#	val_dataloader.dataset.pipeline.0.use_dim="[0,1,2,4,5,6,7]" \
+#	train_dataloader.dataset.dataset.pipeline.4.num_points=50000 \
+#	val_dataloader.dataset.pipeline.1.transforms.2.num_points=50000 \
+#	train_dataloader.dataset.dataset.pipeline.4.firstk_sampling=True \
+#	val_dataloader.dataset.pipeline.1.transforms.2.firstk_sampling=True \
+#	model.data_preprocessor.max_ball_neighbors=64 \
+#	model.data_preprocessor.ball_radius=0.2 \
+#	model.data_preprocessor.neighbor_score=1.25 \
+#	model.data_preprocessor.ad_neighbor_score=True \
+#	model.data_preprocessor.filter_index=4 \
+#	model.data_preprocessor.post=True \
+#	model.data_preprocessor.same_sizes=True \
+#	train_dataloader.dataset.dataset.ann_file='sunrgbd_infos_train_1_100_1_50_5_100_5_50_clean.pkl' \
+#	val_dataloader.dataset.ann_file='sunrgbd_infos_val_1_100_1_50_5_100_5_50_clean.pkl' \
+#	param_scheduler.0.end=12 \
+#	param_scheduler.0.milestones=[8,10] \
+#	train_cfg.max_epochs=12 \
+
+
+
+	#model.data_preprocessor.ad_neighbor_score=True \
+	#model.neighbor_score=0.003 \
+	#model.filter_index=4 \
+
+	#train_dataloader.batch_size=8 \
+	#train_dataloader.num_workers=8
+
+
+
+	#model.backbone.in_channels=5 \
+	#val_dataloader.dataset.pipeline.1.transforms.2.thresh_sampling=0.2 \
+	#train_dataloader.dataset.dataset.pipeline.4.thresh_sampling=0.2 \
+	#model.new_fps_strat=True \
+	#train_dataloader.dataset.dataset.pipeline.0.unit_probabilities=3 \
+	#val_dataloader.dataset.pipeline.0.unit_probabilities=3 \
+	#model.shuffle_stack=True \
+	#train_dataloader.num_workers=4 \
+	#train_dataloader.dataset.dataset.pipeline.4.topk_sampling=True \
+	#model.bbox_head.proposals_conf=1 \
+	#model.bbox_head.clip=0.9 \
+	#model.train_cfg.sample_mode="random" \ 
+	#model.test_cfg.sample_mode="random" \ 
+	#train_dataloader.dataset.dataset.pipeline.0.norm_probabilities=3 \
+	#val_dataloader.dataset.pipeline.0.norm_probabilities=3 \
+	#train_dataloader.dataset.dataset.pipeline.4.pre_sort=None \
+	#val_dataloader.dataset.pipeline.1.transforms.2.pre_sort=None \
+	#train_dataloader.dataset.dataset.pipeline.0.unit_probabilities=True \
+	#val_dataloader.dataset.pipeline.0.unit_probabilities=True \
+	#model.max_neighbor=1024 \
+	#val_dataloader.dataset.pipeline.1.transforms.2.probability_sampling=True \
+	#train_dataloader.dataset.dataset.pipeline.4.probability_sampling=True \
+	#train_dataloader.dataset.dataset.pipeline.0.cache_prefix="${TMPFOLDER}" \
+#	model.backbone.sa_cfg.pool_mod='avgmax' \
+	#train_dataloader.sampler.shuffle=False \
+	#model.backbone.fps_sample_range_list="[5000,-1,-1,-1]" \
+	#val_dataloader.dataset.pipeline.1.transforms.2.topk_sampling=True \
+	#model.backbone.sa_mask=True \
+	#model.backbone.num_points="[2048,2048,512,256]" \
+	#model.weighted_filtering_score=True \
+
+
+
+
+
+
+#SBR=$1
+#EXPERIMENT=work_dir_py/sbr/1.0/score-denoised_sunrgbd1000fastfast/all5/point20000
+#EXPERIMENT=work_dir_py/gaussian_noise/score-denoised/0.5/first50000
+#DATAPATH=points_gaussian/score-denoised/0.5/pcl/
+#DATAPATH=points_min2/1.0/score-denoised_sunrgbd1000fastfastlink/argmax-filtering-sbr/
+
+
+#PORT=${PORTUSED} ./tools/dist_train.sh configs/mvxnet/mvxnet_fpn_dv_second_secfpn_8xb2-80e_kitti-3d-3class.py ${GPUS} --auto-scale-lr --resume  --cfg-options \
+#PORT=${PORTUSED} ./tools/dist_train.sh configs/pointpillars/pointpillars_hv_secfpn_8xb6-160e_kitti-3d-3class.py ${GPUS} --auto-scale-lr --resume --cfg-options \
+#	work_dir=${EXPERIMENT} \
+#	default_hooks.checkpoint.interval=10 \
+#	train_dataloader.dataset.dataset.pipeline.0.use_dim=[0,1,2,4,5] \
+#	val_dataloader.dataset.pipeline.0.use_dim=[0,1,2,4,5] \
+#	train_dataloader.dataset.dataset.data_prefix.pts=${DATAPATH} \
+#	val_dataloader.dataset.data_prefix.pts=${DATAPATH} \
+#	train_dataloader.dataset.dataset.pipeline.0.load_dim=6 \
+#	val_dataloader.dataset.pipeline.0.load_dim=6 \
+#	train_dataloader.dataset.dataset.pipeline.2.db_sampler.points_loader.use_dim=[0,1,2,4,5] \
+#	train_dataloader.dataset.dataset.pipeline.2.db_sampler.points_loader.load_dim=6 \
+#	train_dataloader.dataset.dataset.pipeline.2.db_sampler.info_path='data/kitti/kitti_dbinfos_train6.pkl' \
+#	model.data_preprocessor.neighbor_score=0.005 \
+#	model.data_preprocessor.filter_index=3 \
+#	model.voxel_encoder.in_channels=5 \
+
+
+
+
+
+

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+#SBATCH --partition=research
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=20G
+#SBATCH --time=2:0:0
+
+#SBATCH -o slurm.%j.%N.out # STDOUT
+#SBATCH -e slurm.%j.%N.err # STDERR
+
+#SBATCH --job-name=scripts
+
+#module load anaconda/mini/23.3.1
+module load conda/miniforge/23.1.0
+bootstrap_conda
+conda activate openmmlab
+
+python plot.py
+
+

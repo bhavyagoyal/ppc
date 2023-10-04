@@ -8,7 +8,7 @@ from mmdet3d.registry import MODELS
 from mmdet3d.structures import Det3DDataSample
 from ..test_time_augs import merge_aug_bboxes_3d
 from .single_stage import SingleStage3DDetector
-
+#import numpy as np
 
 @MODELS.register_module()
 class VoteNet(SingleStage3DDetector):
@@ -97,6 +97,14 @@ class VoteNet(SingleStage3DDetector):
         """
         feats_dict = self.extract_feat(batch_inputs_dict)
         points = batch_inputs_dict['points']
+        #print(feats_dict.keys(), feats_dict['sa_xyz'][0].shape, feats_dict['sa_xyz'][1].shape)
+        #for x in range(feats_dict['sa_xyz'][0].shape[0]):
+        #    pref = '1-50-sp0004-newfpscf10'
+        #    feats_dict['sa_xyz'][1][x].cpu().numpy().astype(np.float32).tofile('centroids/' + pref +'-1-' + str(x) + '.bin')
+        #    feats_dict['sa_indices'][1][x].cpu().numpy().tofile('centroids/' + pref +'-1-' + str(x) + '-indices.bin')
+        #    feats_dict['sa_xyz'][0][x].cpu().numpy().astype(np.float32).tofile('centroids/' + pref +'-0-' + str(x) + '.bin')
+        #    points[0].cpu().numpy().astype(np.float32).tofile('centroids/' + pref +'-0-' + str(x) + '-points.bin')
+        #exit(0)
         results_list = self.bbox_head.predict(points, feats_dict,
                                               batch_data_samples, **kwargs)
         data_3d_samples = self.add_pred_to_datasample(batch_data_samples,

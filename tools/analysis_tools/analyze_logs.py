@@ -5,7 +5,10 @@ from collections import defaultdict
 
 import numpy as np
 import seaborn as sns
+import matplotlib
 from matplotlib import pyplot as plt
+sns.set_palette("Paired")
+matplotlib.rcParams['font.size'] = 5
 
 
 def cal_train_time(log_dicts, args):
@@ -42,8 +45,9 @@ def plot_curve(log_dicts, args):
     if legend is None:
         legend = []
         for json_log in args.json_logs:
+            json_log_fname = '/'.join(json_log.split('/')[:-3])
             for metric in args.keys:
-                legend.append(f'{json_log}_{metric}')
+                legend.append(f'{json_log_fname}_{metric}')
     assert len(legend) == (len(args.json_logs) * len(args.keys))
     metrics = args.keys
 
@@ -74,6 +78,7 @@ def plot_curve(log_dicts, args):
                         xs += [epoch]
                 plt.xlabel('epoch')
                 plt.plot(xs, ys, label=legend[i * num_metrics + j], marker='o')
+                plt.legend()
             else:
                 xs = []
                 ys = []
@@ -175,6 +180,11 @@ def load_json_logs(json_logs):
                 if not len(log) > 1:
                     continue
 
+                if 'epoch' in log.keys():
+                    epoch = log['epoch']
+                else:
+                    log.pop('step')
+
                 if epoch not in log_dict:
                     log_dict[epoch] = defaultdict(list)
 
@@ -187,18 +197,23 @@ def load_json_logs(json_logs):
                     else:
                         log_dict[epoch][k].append(v)
 
-                if 'epoch' in log.keys():
-                    epoch = log['epoch']
 
     return log_dicts
 
-
+import os
 def main():
     args = parse_args()
 
     json_logs = args.json_logs
-    for json_log in json_logs:
-        assert json_log.endswith('.json')
+    for idx, json_log in enumerate(json_logs):
+        if(not json_log.endswith('.json')):
+            for root, dirs, files in os.walk(json_log):
+                dirs.sort()
+                files.sort()
+                for file in files:
+                    if(file.endswith('.json')):
+                        json_logs[idx] = os.path.join(root, file)
+        assert json_logs[idx].endswith('.json')
 
     log_dicts = load_json_logs(json_logs)
 
