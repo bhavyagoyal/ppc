@@ -36,7 +36,7 @@ train_pipeline = [
         backend_args=backend_args),
     dict(type='LoadAnnotations3D', with_bbox_3d=True, with_label_3d=True),
     dict(type='ObjectSample', db_sampler=db_sampler, use_ground_plane=True),
-#    dict(type='PointSample', num_points=100000),
+    #dict(type='PointSample', num_points=100000),
     dict(type='RandomFlip3D', flip_ratio_bev_horizontal=0.5),
     dict(
         type='GlobalRotScaleTrans',
@@ -56,7 +56,7 @@ test_pipeline = [
         load_dim=4,
         use_dim=4,
         backend_args=backend_args),
-#    dict(type='PointSample', num_points=100000),
+    #dict(type='PointSample', num_points=100000),
     dict(
         type='MultiScaleFlipAug3D',
         img_scale=(1333, 800),

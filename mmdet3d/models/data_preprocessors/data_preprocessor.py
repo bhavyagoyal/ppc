@@ -95,7 +95,10 @@ class Det3DDataPreprocessor(DetDataPreprocessor):
                  pad_size_divisor: int = 1,
                  pad_value: Union[float, int] = 0,
                  neighbor_score: float = 0,
+                 max_ball_neighbors: int = 32,
+                 ball_radius: float = 0.8,
                  ad_neighbor_score: bool = False,
+                 same_sizes: bool = False,
                  adavg_neighbor_score: bool = False,
                  filter_index: int = 4,
                  in_channels: int = None,
@@ -128,6 +131,9 @@ class Det3DDataPreprocessor(DetDataPreprocessor):
         self.batch_first = batch_first
         self.max_voxels = max_voxels
         self.neighbor_score = neighbor_score
+        self.max_ball_neighbors = max_ball_neighbors
+        self.ball_radius = ball_radius
+        self.same_sizes = same_sizes
         self.ad_neighbor_score = ad_neighbor_score
         self.adavg_neighbor_score = adavg_neighbor_score
         self.filter_index = filter_index
@@ -191,22 +197,24 @@ class Det3DDataPreprocessor(DetDataPreprocessor):
                 points_xyz = points[None,:,:3].detach().contiguous()
                 points_probs = points[None,:,self.filter_index].detach().contiguous()
                 min_prob = points_probs.min()
+                max_prob = points_probs.max()
                 avg_prob = points_probs.mean()
-                MAX_BALL_NEIGHBORS = 32
-                ball_idxs = ball_query(0, 0.8, MAX_BALL_NEIGHBORS, points_xyz, points_xyz).long()
+                ball_idxs = ball_query(0, self.ball_radius, self.max_ball_neighbors, points_xyz, points_xyz).long()
 
                 ball_idxs_first = ball_idxs[:,:,0][:,:,None]
                 nonzero_ball_idxs = ((ball_idxs-ball_idxs_first)!=0)
                 nonzero_count = nonzero_ball_idxs.sum(-1)
 
-                points_probs_tiled = points_probs[:,:,None].tile(MAX_BALL_NEIGHBORS)
+                points_probs_tiled = points_probs[:,:,None].tile(self.max_ball_neighbors)
                 neighbor_probs = torch.gather(points_probs_tiled, 1, ball_idxs) 
                 neighbor_probs = neighbor_probs*nonzero_ball_idxs
                 neighbor_probs = neighbor_probs.mean(-1)[0]
     
                 prob_thresh = self.neighbor_score
                 if(self.ad_neighbor_score):
-                    prob_thresh = min_prob*self.neighbor_score       
+                    # min_prob could be 1 for clean point clouds.
+                    # using 0.01 as the upper limit of threshold for npd score for now
+                    prob_thresh = min(min_prob*self.neighbor_score, 0.01)   
                 if(self.adavg_neighbor_score):
                     prob_thresh = avg_prob*self.neighbor_score       
                 selected_points = neighbor_probs>=prob_thresh
@@ -225,6 +233,15 @@ class Det3DDataPreprocessor(DetDataPreprocessor):
         if(self.in_channels):
             for idx in range( len( inputs['points'] ) ):
                 inputs['points'][idx] = inputs['points'][idx][:,:self.in_channels]
+        
+        if(self.same_sizes):
+            sizes = [x.shape[0] for x in inputs['points']]
+            all_sizes = all(x==sizes[0] for x in sizes)
+            if(not all_sizes):
+                max_size = max(sizes)
+                for idx in range(len(inputs['points'])):
+                    firsts = torch.tile(inputs['points'][idx][0],(max_size-inputs['points'][idx].shape[0],1))
+                    inputs['points'][idx] = torch.concatenate((inputs['points'][idx], firsts), axis=0)
 
         if 'points' in inputs:
             batch_inputs['points'] = inputs['points']

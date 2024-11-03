@@ -1036,6 +1036,7 @@ class PointSample(BaseTransform):
                  firstk_sampling: bool = False, # first n points
                  thresh_sampling: float = None, # n points above threshold
                  threshall_sampling: float = None, # all points above threshold
+                 ad_threshall_sampling: bool = False, # adaptive threshold
                  thresh_index: int = 5, # index for threshold
                  #pre_sort: int = None,
                  sample_range: Optional[float] = None,
@@ -1048,6 +1049,7 @@ class PointSample(BaseTransform):
         self.firstk_sampling = firstk_sampling
         self.thresh_sampling = thresh_sampling
         self.threshall_sampling = threshall_sampling
+        self.ad_threshall_sampling = ad_threshall_sampling
         self.thresh_index = thresh_index
         #self.pre_sort = pre_sort
 
@@ -1146,7 +1148,10 @@ class PointSample(BaseTransform):
             choices = np.array(list(islice(cycle(probs_selected), num_samples)))
         elif(self.threshall_sampling is not None):
             probs = points.tensor[:,self.thresh_index]
-            probs_selected = np.where(probs>self.threshall_sampling)[0]
+            thresh_score = self.threshall_sampling
+            if(self.ad_threshall_sampling):
+                thresh_score = min(probs.max(), thresh_score*probs.min())
+            probs_selected = np.where(probs>=thresh_score)[0]
             choices = probs_selected[:num_samples]
         else:
             choices = np.random.choice(point_range, num_samples, replace=replace)
