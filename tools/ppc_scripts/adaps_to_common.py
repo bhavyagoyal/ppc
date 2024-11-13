@@ -97,20 +97,20 @@ print(fname, keep_points.sum())
 #density = np.ones(TOTAL)
 #conf = np.linspace(0,1,TOTAL)
 total = raw_hist.sum(axis=1)
-keep_hist = total>=2
+density = raw_hist.max(axis=1)
+keep_hist = density>=0.75
 keep_hist = keep_hist.astype(np.float32)
 #raw_hist = raw_hist*keep_hist[:,None]
-density = raw_hist.max(axis=1)
 #densitynz = density[np.nonzero(density)]
 total = np.clip(total, 1, None)
 conf = density/total 
 reflec = density/density.max()
 
-BIN_WIDTH = 70.0/672
+BIN_WIDTH = 60.0/672
 #hist_dist = raw_hist.argmax(-1)
 hist_dist = argmaxrandomtie(raw_hist)
 hist_dist = hist_dist.reshape(nr,nc)
-hist_points = depth2points(finaldepth(hist_dist*BIN_WIDTH)) 
+hist_points = depth2points(finaldepth((hist_dist)*BIN_WIDTH)) 
 hist_points = hist_points*keep_hist[:,None]
 
 points3d = np.concatenate([points, density[:,None], conf[:,None], np.tile(reflec[:,None], (1,3))], axis=1)
