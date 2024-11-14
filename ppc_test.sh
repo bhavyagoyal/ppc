@@ -5,7 +5,7 @@
 #SBATCH --mem=24G
 #SBATCH --time=24:0:0
 ###SBATCH --nodelist=euler21
-#SBATCH --exclude=euler05,euler07
+#SBATCH --exclude=euler05,euler07,euler21
 #SBATCH -o slurm.%j.%N.out # STDOUT
 #SBATCH -e slurm.%j.%N.err # STDERR
 #SBATCH --job-name=testmm
@@ -21,34 +21,53 @@ export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 
 
-########## SUN RGB-D ##############
-#
-### PPC Model Testing
-#EXPERIMENT=work_dir_py/sbr/0.3/joint/first50000_spupdatedX/first50000_spupdated0003/
+######### SUN RGB-D ##############
+
+## PPC Model Testing
+EXPERIMENT=work_dir_py/sbr/0.3/jointDP/first50000_spupdated0003_post/
+#EXPERIMENT=work_dir_py/sbr/0.3/jointDP/first50000_spupdated0003_post_attnnpdfinmask09/
 #EXPERIMENT=work_dir_py/sbr/0.048/joint/first50000_spupdated0001/
-#CHECKPOINT=${EXPERIMENT}/epoch_12.pth
-#
-#SBR=("clean" "5_50" "5_100" "1_50" "1_100")
-#for i in "${!SBR[@]}"
-#do
-##DATAPATH=points_min2/0.3/argmax-filtering-sbr/${SBR[$i]}/
+CHECKPOINT=${EXPERIMENT}/epoch_12.pth
+
+SBR=("clean" "5_50" "5_100" "1_50" "1_100")
+for i in "${!SBR[@]}"
+do
+DATAPATH=points_min2/0.3/argmax-filtering-sbr/${SBR[$i]}/
 #DATAPATH=points_min2/0.048/gaussfilter-argmax-filtering-sbr/${SBR[$i]}/
-#CUDA_VISIBLE_DEVICES=0 python -u tools/test.py configs/votenet/votenet_8xb16_sunrgbd-3d.py ${CHECKPOINT} --cfg-options \
-#	work_dir=mapresults/${EXPERIMENT} \
-#	test_dataloader.dataset.data_prefix.pts=${DATAPATH} \
-#	test_dataloader.dataset.pipeline.0.load_dim=8 \
-#	test_dataloader.dataset.pipeline.1.transforms.2.num_points=50000 \
-#	test_dataloader.dataset.pipeline.1.transforms.2.firstk_sampling=True \
-#	test_dataloader.dataset.pipeline.0.use_dim="[0,1,2,4]" \
-#	model.neighbor_score=0.001 \
-#	model.filter_index=4 \
-#
-#
-##	model.post_sort=4 \
-##	model.updated_fps=0.005 \
-#
-#done
-#
+CUDA_VISIBLE_DEVICES=0 python -u tools/test.py configs/votenet/votenet_8xb16_sunrgbd-3d.py ${CHECKPOINT} --cfg-options \
+	work_dir=mapresults_test/${EXPERIMENT} \
+	test_dataloader.dataset.data_prefix.pts=${DATAPATH} \
+	test_dataloader.dataset.pipeline.0.load_dim=8 \
+	test_dataloader.dataset.pipeline.1.transforms.2.num_points=50000 \
+	test_dataloader.dataset.pipeline.1.transforms.2.firstk_sampling=True \
+	test_dataloader.dataset.pipeline.0.use_dim="[0,1,2,4]" \
+	model.data_preprocessor.max_ball_neighbors=64 \
+	model.data_preprocessor.ball_radius=0.2 \
+	model.data_preprocessor.neighbor_score=0.003 \
+	model.data_preprocessor.filter_index=4 \
+	model.data_preprocessor.post=True \
+	model.data_preprocessor.same_sizes=True \
+
+
+
+#	model.backbone.sa_mask=True \
+#	model.backbone.clip=0.9 \
+#	model.backbone.in_channels=5 \
+
+
+
+
+
+
+#	model.bbox_head.proposals_conf=2 \
+#	model.bbox_head.clip=0.5 \
+
+
+#	model.post_sort=4 \
+#	model.updated_fps=0.005 \
+
+done
+
 
 
 ### Baselines
