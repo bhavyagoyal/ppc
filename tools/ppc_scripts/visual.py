@@ -9,7 +9,7 @@ import pandas
 fname = sys.argv[1]
 num_points = int(sys.argv[2])
 color_idx = int(sys.argv[3])
-#thresh = float(sys.argv[4])
+thresh = float(sys.argv[4])
 
 
 points = np.fromfile(fname, dtype=np.float32)
@@ -20,12 +20,10 @@ points = points.reshape(-1,num_points)
 #points = points.to_numpy()
 
 #choices = np.random.choice(points.shape[0], 5000, replace=False)
-#choices = points[:,4]>thresh
-#points = points[choices]
+choices = points[:,3]>thresh
+points = points[choices]
 
-#print(points.shape, (points[:,3]/points[:,4]).mean(), np.median(points[:,3]/points[:,4]), points[:,4].min(), points[:,4].mean())
 points_color = points[:,color_idx]
-print(points_color.min(), points_color.max(), points_color.mean(), points_color.std())
 #points_color = points[:,5:8]
 points_color = points_color/points_color.max()
 points_color = sns.color_palette('coolwarm', as_cmap=True)(points_color)[:,:3]

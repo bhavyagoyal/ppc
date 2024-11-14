@@ -35,7 +35,8 @@ class PointNet2SASSG(BasePointNet):
 
     def __init__(self,
                  in_channels: int,
-                 #sa_mask: bool = False,
+                 sa_mask: bool = False,
+                 clip: float = None,
                  num_points: Sequence[int] = (2048, 1024, 512, 256),
                  radius: Sequence[float] = (0.2, 0.4, 0.8, 1.2),
                  num_samples: Sequence[int] = (64, 32, 16, 16),
@@ -56,7 +57,8 @@ class PointNet2SASSG(BasePointNet):
         super().__init__(init_cfg=init_cfg)
         self.num_sa = len(sa_channels)
         self.num_fp = len(fp_channels)
-        #self.sa_mask = sa_mask
+        self.sa_mask = sa_mask
+        self.clip = clip
         self.in_channels = in_channels
 
         assert len(num_points) == len(radius) == len(num_samples) == len(
@@ -123,7 +125,7 @@ class PointNet2SASSG(BasePointNet):
         indices = xyz.new_tensor(range(num_points)).unsqueeze(0).repeat(
             batch, 1).long()
 
-        #point_features = features
+        point_features = features
         sa_xyz = [xyz]
         sa_features = [features[:,:self.in_channels-3,:]]
         sa_indices = [indices]
@@ -135,9 +137,16 @@ class PointNet2SASSG(BasePointNet):
             else:
                 cur_xyz, cur_features, cur_indices = self.SA_modules[i](
                     sa_xyz[i], sa_features[i])
-            #if(self.sa_mask):
-            #    attn = torch.take(sa_features[0][:,1,:], cur_indices.long())
-            #    cur_features = cur_features*attn[:,None,:]
+            if(i==self.num_sa-1 and self.sa_mask):
+                    #conf = torch.take(sa_features[0][:,1,:], cur_indices.long())
+                    conf = torch.take(point_features[:,2,:], cur_indices.long())
+                    if(self.clip is not None):
+                        conf_high_count = int(self.clip*conf.shape[1])
+                        conf_high = conf.sort(-1)[0][:,conf_high_count:conf_high_count+1]
+                        conf = torch.clamp( conf, min=None, max=conf_high )
+                    #conf = (conf/conf.mean(-1,True))*conf.shape[1]
+                    conf = conf/conf.mean(-1,True)
+                    cur_features = cur_features*conf[:,None,:]
             sa_xyz.append(cur_xyz)
             sa_features.append(cur_features)
             sa_indices.append(
@@ -160,6 +169,6 @@ class PointNet2SASSG(BasePointNet):
             fp_indices=fp_indices,
             sa_xyz=sa_xyz,
             sa_features=sa_features,
-            #point_features=point_features,
+            point_features=point_features,
             sa_indices=sa_indices)
         return ret

@@ -218,7 +218,7 @@ class Det3DDataPreprocessor(DetDataPreprocessor):
                 if(self.adavg_neighbor_score):
                     prob_thresh = avg_prob*self.neighbor_score       
                 selected_points = neighbor_probs>=prob_thresh
-                #points = torch.concatenate([points, neighbor_probs[...,None]], axis=-1)
+                points = torch.concatenate([points, neighbor_probs[...,None]], axis=-1)
                 points = points[selected_points]
 
                 inputs['points'][idx] = points
