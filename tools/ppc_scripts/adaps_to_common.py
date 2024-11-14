@@ -98,7 +98,7 @@ print(fname, keep_points.sum())
 #conf = np.linspace(0,1,TOTAL)
 total = raw_hist.sum(axis=1)
 density = raw_hist.max(axis=1)
-keep_hist = density>=0.75
+keep_hist = density>0.4
 keep_hist = keep_hist.astype(np.float32)
 #raw_hist = raw_hist*keep_hist[:,None]
 #densitynz = density[np.nonzero(density)]
