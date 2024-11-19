@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#SBATCH --array=1-75%1
+#SBATCH --array=1-104%1
 
 #SBATCH --partition=research
 ###SBATCH --gres=gpu:1
@@ -26,9 +26,10 @@ conda activate openmmlab2
 START=$((($SLURM_ARRAY_TASK_ID-1)*100))
 END=$((($SLURM_ARRAY_TASK_ID)*100))
 
-DATASET="kitti"
+DATASET="sunrgbd"
 THRESHOLD=0.3
-SBR=("5_100" "5_250" "5_500" "5_1000")
+#SBR=("5_100" "5_250" "5_500" "5_1000")
+SBR=("5_50" "5_100" "1_50" "1_100")
 for i in "${!SBR[@]}"
 do
 python -u gen_points.py --method=argmax-filtering-sbr --sbr=${SBR[$i]} --start $START --end $END --threshold $THRESHOLD --outfolder_prefix "${THRESHOLD}" --dataset "${DATASET}" 

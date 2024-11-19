@@ -29,15 +29,15 @@ cd tools/ppc_simulation
 ```
 
 
-### Training/Testing PPC models
+### Training/Evaluating PPC models
 - Train PPC model using `ppc_train.sh` script. Uncomment lines in the script to train all PPC models and baselines.
 ```bash
 ./ppc_train.sh
 ```
 
-- Test PPC model using `ppc_test.sh` script.
+- Evaluate PPC model using `ppc_test.sh` script.
 ```bash
-./ppc_train.sh
+./ppc_test.sh
 ```
 
 
