@@ -1,3 +1,48 @@
+## Robust 3D Object Detection using Probabilistic Point Clouds
+
+**Under Review** <br>
+<!-- [Arxiv](https://arxiv.org/abs/2107.11001) &nbsp; [Project](https://wisionlab.cs.wisc.edu/project/photon-net/) &nbsp; [Video](https://www.youtube.com/watch?v=r1YvHnGbi6k) -->
+
+Repo for code to simulate probabilitic point clouds and train/test PPC models.
+
+
+### Code Structure
+```bash
+.                                  # MMdetection3d Code
+.
+.
+├── tools/ppc_simulation/          # Code for Probabilistic Point Cloud Simulation
+└── README.md
+```
+
+### Requirements/Installation
+- Follow the [Installation](https://mmdetection3d.readthedocs.io/en/latest/get_started.html) steps for mmdetection3d framework.
+
+
+### Probabilistic Point Cloud (PPC) Simulation
+- Follow the original [dataset preparation](https://mmdetection3d.readthedocs.io/en/latest/user_guides/dataset_prepare.html) instructions.
+- Use `ppc_simulate.sh` to simulate 3D temporal waveforms and `gen_points.sh` to generate probabilistic point clouds.
+```bash
+cd tools/ppc_simulation
+./ppc_simulate.sh
+./gen_points.sh
+```
+
+
+### Training/Testing PPC models
+- Train PPC model using `ppc_train.sh` script. Uncomment lines in the script to train all PPC models and baselines.
+```bash
+./ppc_train.sh
+```
+
+- Test PPC model using `ppc_test.sh` script.
+```bash
+./ppc_train.sh
+```
+
+
+
+
 <div align="center">
   <img src="resources/mmdet3d-logo.png" width="600"/>
   <div>&nbsp;</div>
