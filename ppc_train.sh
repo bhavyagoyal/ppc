@@ -40,8 +40,7 @@ PORTUSED=$(( $RANDOM + 10000 ))
 
 
 # PPC Model Training
-EXPERIMENT=work_dir_py/sbr/0.3/jointDP/first50000_spupdated0003_post_featprobnpd
-#_attnnpdfinmask
+EXPERIMENT=work_dir_py/sbr/0.3/jointDP/first50000_spupdated0003_post
 DATAPATH=points_min2/0.3/argmax-filtering-sbr/
 PORT=${PORTUSED} ./tools/dist_train.sh configs/votenet/votenet_8xb16_sunrgbd-3d.py ${GPUS} --auto-scale-lr --resume --cfg-options \
 	train_dataloader.dataset.dataset.data_prefix.pts=${DATAPATH} \
@@ -53,8 +52,8 @@ PORT=${PORTUSED} ./tools/dist_train.sh configs/votenet/votenet_8xb16_sunrgbd-3d.
 	val_dataloader.dataset.pipeline.1.transforms.2.num_points=50000 \
 	train_dataloader.dataset.dataset.pipeline.0.load_dim=8 \
 	val_dataloader.dataset.pipeline.0.load_dim=8 \
-	train_dataloader.dataset.dataset.pipeline.0.use_dim="[0,1,2,4,5,6,7]" \
-	val_dataloader.dataset.pipeline.0.use_dim="[0,1,2,4,5,6,7]" \
+	train_dataloader.dataset.dataset.pipeline.0.use_dim="[0,1,2,4]" \
+	val_dataloader.dataset.pipeline.0.use_dim="[0,1,2,4]" \
 	train_dataloader.dataset.dataset.ann_file='sunrgbd_infos_train_1_100_1_50_5_100_5_50_clean.pkl' \
 	val_dataloader.dataset.ann_file='sunrgbd_infos_val_1_100_1_50_5_100_5_50_clean.pkl' \
 	param_scheduler.0.end=12 \
@@ -68,28 +67,19 @@ PORT=${PORTUSED} ./tools/dist_train.sh configs/votenet/votenet_8xb16_sunrgbd-3d.
 	model.data_preprocessor.filter_index=4 \
 	model.data_preprocessor.post=True \
 	model.data_preprocessor.same_sizes=True \
-	model.backbone.in_channels=6 \
 
 
 
+
+#	model.backbone.in_channels=6 \
 #	model.backbone.sa_mask=True \
 #	model.backbone.clip=0.9 \
-
-
-
-
-
-
 
 	#model.bbox_head.proposals_conf=1 \
 	#model.bbox_head.clip=0.9 \
 	#model.post_sort=4 \
 	#model.updated_fps=0.005 \
-
-
-
 #	model.max_ball_neighbors=256 \
-
 
 	#train_dataloader.dataset.dataset.pipeline.0.unit_probabilities=3 \
 	#val_dataloader.dataset.pipeline.0.unit_probabilities=3 \
@@ -145,12 +135,14 @@ PORT=${PORTUSED} ./tools/dist_train.sh configs/votenet/votenet_8xb16_sunrgbd-3d.
 #	train_dataloader.dataset.dataset.pipeline.4.thresh_index=4 \
 
 
+
+
 ####################### Fusion Models ######################
 #
-#EXPERIMENT=work_dir_py/imvotenet/0.3/jointDP/first50000_spupdated0003_post_repeat
+#EXPERIMENT=work_dir_py/imvotenet/0.3/jointDP/first50000_spupdated0003_post
 #DATAPATH=points_min2/0.3/argmax-filtering-sbr/
 #
-## with resume flag, model does not load from load_from flag
+## with resume flag, model does not load from "load_from" flag
 #CHECKPOINTFILE=${EXPERIMENT}/epoch_1.pth
 #if [ -f $CHECKPOINTFILE ]; then
 #	RESUMEFLAG=" --resume "

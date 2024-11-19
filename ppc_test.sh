@@ -25,7 +25,6 @@ export NCCL_IB_DISABLE=1
 
 ## PPC Model Testing
 EXPERIMENT=work_dir_py/sbr/0.3/jointDP/first50000_spupdated0003_post/
-#EXPERIMENT=work_dir_py/sbr/0.3/jointDP/first50000_spupdated0003_post_attnnpdfinmask09/
 #EXPERIMENT=work_dir_py/sbr/0.048/joint/first50000_spupdated0001/
 CHECKPOINT=${EXPERIMENT}/epoch_12.pth
 
@@ -35,7 +34,7 @@ do
 DATAPATH=points_min2/0.3/argmax-filtering-sbr/${SBR[$i]}/
 #DATAPATH=points_min2/0.048/gaussfilter-argmax-filtering-sbr/${SBR[$i]}/
 CUDA_VISIBLE_DEVICES=0 python -u tools/test.py configs/votenet/votenet_8xb16_sunrgbd-3d.py ${CHECKPOINT} --cfg-options \
-	work_dir=mapresults_test/${EXPERIMENT} \
+	work_dir=mapresults/${EXPERIMENT} \
 	test_dataloader.dataset.data_prefix.pts=${DATAPATH} \
 	test_dataloader.dataset.pipeline.0.load_dim=8 \
 	test_dataloader.dataset.pipeline.1.transforms.2.num_points=50000 \
@@ -50,19 +49,11 @@ CUDA_VISIBLE_DEVICES=0 python -u tools/test.py configs/votenet/votenet_8xb16_sun
 
 
 
+#	model.backbone.in_channels=6 \
 #	model.backbone.sa_mask=True \
-#	model.backbone.clip=0.9 \
-#	model.backbone.in_channels=5 \
-
-
-
-
-
-
 #	model.bbox_head.proposals_conf=2 \
-#	model.bbox_head.clip=0.5 \
-
-
+#	model.bbox_head.clip=0.9 \
+#	model.backbone.clip=0.9 \
 #	model.post_sort=4 \
 #	model.updated_fps=0.005 \
 
@@ -116,9 +107,7 @@ done
 
 ### PPC Model Testing 
 #EXPERIMENT=work_dir_py/kitti/pvrcnn/3class/joint_5fluxunder2048/0.3/npupdated_ad01/
-##EXPERIMENT=work_dir_py/kitti/pvrcnn/3class/joint_5fluxunder2048/0.3/baseline/
 #CHECKPOINT=${EXPERIMENT}/epoch_9.pth
-##CHECKPOINT=checkpoints/pv_rcnn_8xb2-80e_kitti-3d-3class_20221117_234428-b384d22f.pth
 #
 #SBR=("clean" "5_100" "5_250" "5_500" "5_1000")
 #for i in "${!SBR[@]}"
