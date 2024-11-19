@@ -1083,29 +1083,6 @@ class PointSample(BaseTransform):
                 - choices (np.ndarray, optional): The generated random samples.
         """
 
-        ##if(self.neighbor_score):
-        #if(True):
-        #    points_xyz = points.tensor[:,:3][None,...]
-        #    points_probs = points.tensor[:,4][None,...]
-        #    MAX_BALL_NEIGHBORS = 64
-        #    dist, ball_idxs, knns = ball_query(points_xyz, points_xyz, K=MAX_BALL_NEIGHBORS, radius=0.2)
-
-        #    #ball_idxs[ball_idxs==-1]=0
-        #    #nonzero_ball_idxs = ball_idxs>0
-
-        #    #points_probs_tiled = points_probs[:,:,None].tile(MAX_BALL_NEIGHBORS)
-        #    #neighbor_probs = torch.gather(points_probs_tiled, 1, ball_idxs) 
-        #    #neighbor_probs = neighbor_probs*nonzero_ball_idxs
-        #    #neighbor_probs = neighbor_probs.mean(-1)[0]
-        #   
-        #    #selected_points = neighbor_probs>=0.003
-        #    #points.tensor = torch.column_stack([points.tensor, neighbor_probs])
-        #    #points.tensor = points.tensor[selected_points]
-        #    #points.points_dim += 1
-        #    ##new_points = new_points[selected_points]
-        #    ##points = BasePoints(new_points,9)
-        #    #print(len(points))
-
         if isinstance(num_samples, float):
             assert num_samples < 1
             num_samples = int(
