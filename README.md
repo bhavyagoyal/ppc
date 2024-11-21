@@ -17,11 +17,12 @@ Repo for code to simulate probabilitic point clouds and train/test PPC models.
 
 ### Requirements/Installation
 - Follow the [Installation](https://mmdetection3d.readthedocs.io/en/latest/get_started.html) steps for mmdetection3d framework.
+- `matlab` is required for PPC simulation.
 
 
 ### Probabilistic Point Cloud (PPC) Simulation
 - Follow the original [dataset preparation](https://mmdetection3d.readthedocs.io/en/latest/user_guides/dataset_prepare.html) instructions.
-- Use `ppc_simulate.sh` to simulate 3D temporal waveforms and `gen_points.sh` to generate probabilistic point clouds.
+- Use `ppc_simulate.sh` to simulate 3D temporal waveforms and `gen_points.sh` to generate probabilistic point clouds. 
 ```bash
 cd tools/ppc_simulation
 ./ppc_simulate.sh
@@ -44,21 +45,21 @@ cd tools/ppc_simulation
 
 #### SUN RGB-D
 
-|   Method           | Inf time (ms) |          |          |  AP@25    |          |          |       Download      |
-|--------------------|---------------|----------|----------|-----------|----------|----------|---------------------|
-|                    |               |  Clean   |    0.1   |    0.05   |   0.02   |   0.01   |                     |
-|  Matched Filtering |               |          |          |  | | | [model]() \| [log]() |
-|  Thresholding      |               |          |          | | | | [model]() \| [log]() |
-|  [PPC]()           |               |          |          | | | | [model]() \| [log]() |
+|   Method           |          |          |  AP@25    |          |          |       Download      |
+|-------------------:|:--------:|:--------:|:---------:|:--------:|:--------:|:-------------------:|
+|                    |  *Clean* |    *0.1* |   *0.05*  |  *0.02*  |   *0.01* |                     |
+|  Matched Filtering |   51.34  |   42.43  |   38.77   |  16.95   |   11.34  | [model]() \| [log]()|
+|  Thresholding      |   57.11  |   51.27  |   46.44   |  29.58   |   16.47  | [model]() \| [log]()|
+|  [PPC]()           | **58.61**| **54.29**| **52.46** |**38.49** | **29.42**| [model]() \| [log]()|
 
 #### KITTI
 
-|   Method           | Inf time (ms) |          |          |  AP@25    |          |          |       Download      |
-|--------------------|---------------|----------|----------|-----------|----------|----------|---------------------|
-|                    |               |  Clean   |    0.5   |    0.02   |   0.01   |   0.005  |                     |
-|  Matched Filtering |               |          |          |  | | | [model]() \| [log]() |
-|  Thresholding      |               |          |          | | | | [model]() \| [log]() |
-|  [PPC]()           |               |          |          | | | | [model]() \| [log]() |
+|   Method           |          |          |  mAP    |          |          |       Download      |
+|-------------------:|:--------:|:--------:|:---------:|:--------:|:--------:|:-------------------:|
+|                    |  *Clean* |   *0.05* |   *0.02*  |  *0.01*  | *0.005*  |                     |
+|  Matched Filtering |   71.11  |   63.31  |   57.25   |  50.25   |   40.90  | [model]() \| [log]()|
+|  Thresholding      |   70.66  |   63.65  |   58.52   |  51.20   |   41.57  | [model]() \| [log]()|
+|  [PPC]()           | **71.31**| **64.56**| **59.38** |**53.11** | **45.33**| [model]() \| [log]()|
 
 
 
