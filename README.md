@@ -40,6 +40,31 @@ cd tools/ppc_simulation
 ./ppc_test.sh
 ```
 
+### Results/Models
+
+#### SUN RGB-D
+
+|   Method           | Inf time (ms) |          |          |  AP@25    |          |          |       Download      |
+|--------------------|---------------|----------|----------|-----------|----------|----------|---------------------|
+|                    |               |  Clean   |    0.1   |    0.05   |   0.02   |   0.01   |                     |
+|  Matched Filtering |               |          |          |  | | | [model]() \| [log]() |
+|  Thresholding      |               |          |          | | | | [model]() \| [log]() |
+|  [PPC]()           |               |          |          | | | | [model]() \| [log]() |
+
+#### KITTI
+
+|   Method           | Inf time (ms) |          |          |  AP@25    |          |          |       Download      |
+|--------------------|---------------|----------|----------|-----------|----------|----------|---------------------|
+|                    |               |  Clean   |    0.5   |    0.02   |   0.01   |   0.005  |                     |
+|  Matched Filtering |               |          |          |  | | | [model]() \| [log]() |
+|  Thresholding      |               |          |          | | | | [model]() \| [log]() |
+|  [PPC]()           |               |          |          | | | | [model]() \| [log]() |
+
+
+
+Model weights will be updated soon.
+
+
 
 
 
