@@ -2,10 +2,11 @@
 
 **Under Review** <br> [PDF](https://drive.google.com/file/d/1ErBsG4QKFJozsgoB9cveZU7j2PgNchWp) &nbsp; [Project](https://bhavyagoyal.github.io/ppc)
 
-![teaser](resources/ppc_teaser.png)
+![teaser](resources/ppc_teaser.jpg)
 
-#### [Bhavya Goyal](https://bhavyagoyal.github.io), [Mohit Gupta](https://wisionlab.cs.wisc.edu/people/mohit-gupta/)
+#### [Bhavya Goyal](https://bhavyagoyal.github.io), [Felipe Gutierrez-Barragan](https://pages.cs.wisc.edu/~felipe/), [Mohit Gupta](https://wisionlab.cs.wisc.edu/people/mohit-gupta/)
 University of Wisconsin-Madison
+
 
 
 ### Abstract
@@ -24,9 +25,12 @@ We propose to augment each point with a probability attribute that encapsulates 
 └── README.md
 ```
 
+
+
 ### Requirements/Installation
 - Follow the [Installation](https://mmdetection3d.readthedocs.io/en/latest/get_started.html) steps for mmdetection3d framework.
 - `matlab` is required for PPC simulation.
+
 
 
 ### Probabilistic Point Cloud (PPC) Simulation
@@ -36,16 +40,18 @@ We propose to augment each point with a probability attribute that encapsulates 
 cd tools/ppc_simulation
 ./ppc_simulate.sh 0 10
 ```
-  * Edit the `dataset` field in the all scripts to simulate for `KITTI` dataset.
-  * Increase 10 to the size of the dataset to simulate all scenes.
+
 - Use `gen_points.sh` to create probabilistic point clouds from the 3D waveforms.
 ```bash
 ./gen_points.sh 0 10
 ```
+
 - Use `create_pkl.py` to create label files for the whole dataset. It also creates a copy of clean point clouds to create ppc with probability 1.
 ```bash
 python create_pkl.py
 ```
+Edit the `dataset` field in the scripts to simulate for `KITTI` dataset. Increase 10 to the size of the dataset to simulate all scenes.
+
 
 
 ### Training/Evaluating PPC models
@@ -58,6 +64,8 @@ python create_pkl.py
 ```bash
 ./ppc_test.sh
 ```
+
+
 
 ### Results/Models
 
