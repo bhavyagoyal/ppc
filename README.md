@@ -21,11 +21,18 @@ Repo for code to simulate probabilitic point clouds and train/test PPC models.
 
 ### Probabilistic Point Cloud (PPC) Simulation
 - Follow the original [dataset preparation](https://mmdetection3d.readthedocs.io/en/latest/user_guides/dataset_prepare.html) instructions.
-- Use `ppc_simulate.sh` to simulate 3D temporal waveforms and `gen_points.sh` to generate probabilistic point clouds.
+- Use `ppc_simulate.sh` to simulate 3D temporal waveforms. You can edit the `dataset` field in the all the scrips below for `KITTI` dataset.
 ```bash
 cd tools/ppc_simulation
-./ppc_simulate.sh
-./gen_points.sh
+./ppc_simulate.sh 0 10335
+```
+- Use `gen_points.sh` to generate probabilistic point clouds.
+```bash
+./gen_points.sh 0 10335
+```
+- Use `create_pkl.py` to generate label files for the dataset. It also creates a copy of original clean point clouds to create ppc with probability 1.
+```bash
+python create_pkl.py
 ```
 
 

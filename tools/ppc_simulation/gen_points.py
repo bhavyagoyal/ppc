@@ -24,14 +24,11 @@ matplotlib.rcParams.update({'font.size': 20})
 
 SUNRGBDBASE = "../../data/sunrgbd/sunrgbd_trainval/"
 KITTIBASE = "../../data/kitti/training/"
-SUNRGBD_GEN_FOLDER = 'processed_lowfluxlowsbr_min2/SimSPADDataset_nr-576_nc-704_nt-1024_tres-586ps_dark-0_psf-0'
-KITTI_GEN_FOLDER = 'processed_velodyne_reduced_lowfluxlowsbr8192_r025_dist10/nr-576_nc-704_nt-8192_tres-73ps_dark-0_psf-0'
+SUNRGBD_GEN_FOLDER = 'processed_lowfluxlowsbr_min2/nr-576_nc-704_nt-1024_tres-586ps_dark-0_psf-0'
 KITTI_GEN_FOLDER = 'processed_velodyne_reduced_lowfluxlowsbr2048_r025_dist10/nr-576_nc-704_nt-2048_tres-293ps_dark-0_psf-0'
 SUNRGBDMeta = '../OFFICIAL_SUNRGBD/SUNRGBDMeta3DBB_v2.mat'
-OUTFOLDERNAME = 'points8192_r025_dist10'
-OUTFOLDERNAME = 'points2048_r025_dist10'
-#OUTFOLDERNAME = 'points_min2'
-#OUTFOLDERNAME = '../points_testing'
+KITTIOUTFOLDERNAME = 'points2048_r025_dist10'
+SUNOUTFOLDERNAME = '../points_min2'
 
 SAMPLED_POINTS=50000 # for sun rgbd
 
@@ -179,14 +176,15 @@ def main(args):
         gen_folder = SUNRGBD_GEN_FOLDER
         metadata = scipy.io.loadmat( os.path.join(basefolder,SUNRGBDMeta) )['SUNRGBDMeta'][0]
         scenes = [str(x).zfill(6) for x in range(1,10336)]
+        outfolder = os.path.join(basefolder, SUNOUTFOLDERNAME)
     else:
         basefolder = KITTIBASE
         gen_folder = KITTI_GEN_FOLDER
         scenes = [str(x).zfill(6) for x in range(7481)]
+        outfolder = os.path.join(basefolder, KITTIOUTFOLDERNAME)
     #scenes = open(os.path.join(basefolder, 'all_data_idx.txt')).readlines()
     #scenes = [x.strip() for x in scenes]
 
-    outfolder = os.path.join(basefolder, OUTFOLDERNAME)
     if(args.outfolder_prefix):
         outfolder = os.path.join(outfolder, args.outfolder_prefix)
 
