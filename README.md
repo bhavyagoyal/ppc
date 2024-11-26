@@ -2,12 +2,11 @@
 
 **Under Review** <br> [PDF](https://drive.google.com/file/d/1ErBsG4QKFJozsgoB9cveZU7j2PgNchWp) &nbsp; [Project](https://bhavyagoyal.github.io/ppc)
 
-Repo for the code to simulate probabilitic point clouds and train/evaluate PPC models.
-
 ![teaser](resources/ppc_teaser.png)
 
 #### [Bhavya Goyal](https://bhavyagoyal.github.io), [Mohit Gupta](https://wisionlab.cs.wisc.edu/people/mohit-gupta/)
 University of Wisconsin-Madison
+
 
 ### Abstract
 LiDAR-based 3D sensors provide depth measurements for a scene with varying levels of confidence across pixels. This is due to different noise and signal levels encountered by different pixels in the raw sensor data. Conventional processing pipelines used to construct point clouds do not retain this information in the final point cloud output. Under non-ideal high noise conditions, downstream recognition on these point clouds is severely affected due to a large fraction of spurious points.
@@ -37,8 +36,8 @@ We propose to augment each point with a probability attribute that encapsulates 
 cd tools/ppc_simulation
 ./ppc_simulate.sh 0 10
 ```
-  - Edit the `dataset` field in the all scripts to simulate for `KITTI` dataset.
-  - Increase 10 to the size of the dataset to simulate all scenes.
+  * Edit the `dataset` field in the all scripts to simulate for `KITTI` dataset.
+  * Increase 10 to the size of the dataset to simulate all scenes.
 - Use `gen_points.sh` to create probabilistic point clouds from the 3D waveforms.
 ```bash
 ./gen_points.sh 0 10
