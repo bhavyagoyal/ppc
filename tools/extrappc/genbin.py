@@ -12,7 +12,7 @@ def random_sampling(points, num_points, replace=None, return_choices=False):
         return points[choices]
 
 
-BASEFOLDER = '/srv/home/bgoyal2/Documents/mmdetection3d/data/sunrgbd/'
+BASEFOLDER = '~/Documents/mmdetection3d/data/sunrgbd/'
 SBR = '5_5'
 for imageId in range(1, 2):#5051):
     imageIdst = str(imageId).zfill(6)
