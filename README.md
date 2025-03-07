@@ -2,7 +2,7 @@
 
 **Under Review** <br> [PDF](https://drive.google.com/file/d/1ErBsG4QKFJozsgoB9cveZU7j2PgNchWp) &nbsp; [Project](https://bhavyagoyal.github.io/ppc)
 
-![teaser](resources/ppc_teaser.png)
+![teaser](resources/ppc_teaser.jpg)
 
 #### [Bhavya Goyal](https://bhavyagoyal.github.io), [Felipe Gutierrez-Barragan](https://pages.cs.wisc.edu/~felipe/), [Mohit Gupta](https://wisionlab.cs.wisc.edu/people/mohit-gupta/)
 University of Wisconsin-Madison
