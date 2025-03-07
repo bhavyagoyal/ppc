@@ -318,11 +318,11 @@ def main(args):
         #all_correct_sp.extend(points_sp[0, correct].tolist())
         #all_incorrect_sp.extend(points_sp[0, ~correct].tolist())
 
-        #MAX_BALL_NEIGHBORS = 32 #64 for sunrgbd , 32 for kitti 
+        #MAX_BALL_NEIGHBORS = 64 #64 for sunrgbd , 32 for kitti 
         ## Ball query returns same index is neighbors are less than queried number of neighbors
         ## output looks like [3,56,74,2,44,3,3,3,3,3,3,3,3,3,3,3,3]
         ## radius 0.2 for sunrgbd, 0.8 for kitti
-        #ball_idxs = ball_query(0, 0.8, MAX_BALL_NEIGHBORS, points_xyz, points_xyz).long()
+        #ball_idxs = ball_query(0, 0.2, MAX_BALL_NEIGHBORS, points_xyz, points_xyz).long()
         #
         ## first idx of the ball query is repeated if neighbors are fewer than MAX
         #ball_idxs_first = ball_idxs[:,:,0][:,:,None]
@@ -365,7 +365,8 @@ def main(args):
     #bins = [x*0.01 for x in range(UPPER)]
     ##UPPER = int((cfmax+0.5))
     ##bins = [x for x in range(UPPER)]
-    #IMAGE_DIR = 'figs_sbr_' + args.dataset + str( args.threshold )
+    #IMAGE_DIR = 'figs_sbr_test_' + args.dataset + str( args.threshold )
+    #print(IMAGE_DIR)
 
     #plt.close()
     #plt.hist(all_correct_cf, bins, color='g', alpha=0.5)
@@ -399,10 +400,13 @@ def main(args):
     #formatter = FuncFormatter(human_format)
     #ax.yaxis.set_major_formatter(formatter)
     #plt.tight_layout()
-    #plt.savefig(IMAGE_DIR + '/pointsp' + str(MAX_BALL_NEIGHBORS) + '_peaks_' + args.sbr + '.pdf')
+    #outplotname = IMAGE_DIR + '/pointsp' + str(MAX_BALL_NEIGHBORS) + '_peaks_' + args.sbr
+    #plt.savefig(outplotname + '.pdf')
+    #plt.savefig(outplotname + '.svg', format="svg")
+
 
     #plt.close()
-    #bins = [x*0.0001 for x in range(51)]
+    #bins = [x*0.001 for x in range(51)]
     #plt.hist(all_correct_neighsp, bins, color='g', alpha=0.5, label='Ground Truth')
     #plt.hist(all_incorrect_neighsp, bins, color='r', alpha=0.5, label='Noise')
     #plt.xlabel('NPD Score\n (Avg. SBR='+str(sbrfloat)+')')
@@ -417,7 +421,9 @@ def main(args):
     #formatter = FuncFormatter(human_format)
     #ax.yaxis.set_major_formatter(formatter)
     #plt.tight_layout()
-    #plt.savefig(IMAGE_DIR + '/neighsp' + str(MAX_BALL_NEIGHBORS) + '_peaks_' + args.sbr + '.pdf')
+    #outplotname = IMAGE_DIR + '/neighsp' + str(MAX_BALL_NEIGHBORS) + '_peaks_' + args.sbr
+    #plt.savefig(outplotname + '.pdf')
+    #plt.savefig(outplotname + '.svg', format="svg")
 
 
 

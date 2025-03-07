@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-#SBATCH --array=1-104%4
+#SBATCH --array=1-1%4
 
 #SBATCH --partition=research
-###SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=24G
 #SBATCH --time=24:0:0
 
 ###SBATCH --exclude=euler[01-23],euler[28-30]
-#SBATCH --exclude=euler[01-23]
+###SBATCH --exclude=euler[01-23]
 
 ###SBATCH -o slurm.%j.%N.out # STDOUT
 ###SBATCH -e slurm.%j.%N.err # STDERR
@@ -23,10 +23,10 @@ module load conda/miniforge/23.1.0
 bootstrap_conda
 conda activate openmmlab2
 
-START=$1
-END=$2
-#START=$((($SLURM_ARRAY_TASK_ID-1)*100))
-#END=$((($SLURM_ARRAY_TASK_ID)*100))
+#START=$1
+#END=$2
+START=$((($SLURM_ARRAY_TASK_ID-1)*100))
+END=$((($SLURM_ARRAY_TASK_ID)*100))
 
 DATASET="sunrgbd"
 #DATASET="kitti"
