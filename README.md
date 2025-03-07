@@ -1,8 +1,8 @@
-## Robust 3D Object Detection using Probabilistic Point Clouds
+## Probabilistic Point Clouds from Single-Photon LiDARs for Robust 3D Inference
 
 **Under Review** <br> [PDF](https://drive.google.com/file/d/1ErBsG4QKFJozsgoB9cveZU7j2PgNchWp) &nbsp; [Project](https://bhavyagoyal.github.io/ppc)
 
-![teaser](resources/ppc_teaser.jpg)
+![teaser](resources/ppc_teaser.png)
 
 #### [Bhavya Goyal](https://bhavyagoyal.github.io), [Felipe Gutierrez-Barragan](https://pages.cs.wisc.edu/~felipe/), [Mohit Gupta](https://wisionlab.cs.wisc.edu/people/mohit-gupta/)
 University of Wisconsin-Madison
@@ -10,10 +10,7 @@ University of Wisconsin-Madison
 
 
 ### Abstract
-LiDAR-based 3D cameras output point clouds, a canonical 3D scene representation used in various 3D scene understanding applications. Although modern LiDARs provide high-fidelity geometric information in nominal conditions, they often perform poorly in non-ideal real-world scenarios producing erroneous point clouds. These errors, which are rooted in the noisy raw LiDAR measurements, get propagated to downstream vision models resulting in severe loss of accuracy. This is because conventional 3D processing pipelines used to construct point clouds from raw LiDAR sensor measurements do not retain the noise and uncertainty information available in the raw sensor data. 
-
-We propose a novel 3D scene representation called Probabilistic Point Clouds (PPC) where each point is augmented with a probability attribute that encapsulates the measurement uncertainty (confidence) in raw sensor data. We further introduce inference approaches that leverage PPC for robust 3D object detection; these methods are versatile and can be used as computationally lightweight drop-in modules in 3D inference pipelines. We demonstrate, via both simulations and real captures, that the PPC-based 3D processing methods outperform several baselines with LiDAR as well as Camera-LiDAR fusion models, across challenging indoor and outdoor scenarios involving small, distant, and low-albedo objects, as well as strong ambient light.
-
+LiDAR-based 3D sensors provide point clouds, a canonical 3D representation used in various 3D scene understanding tasks. Modern LiDARs face key challenges in various real-world scenarios such as long-distance or low-albedo objects, producing sparse or erroneous point clouds. These errors, which are rooted in the noisy raw LiDAR measurements, get propagated to downstream perception models, resulting in potentially severe loss of accuracy. This is because conventional 3D processing pipelines used to construct point clouds from raw LiDAR measurements do not retain the uncertainty information available in the raw sensor data. We propose a novel 3D scene representation called Probabilistic Point Clouds (PPC) where each point is augmented with a probability attribute that encapsulates the measurement uncertainty (confidence) in raw data. We further introduce inference approaches that leverage PPC for robust 3D object detection; these methods are versatile and can be used as computationally lightweight drop-in modules in 3D inference pipelines. We demonstrate, via both simulations and real captures, that PPC-based 3D inference methods outperform several baselines with LiDAR as well as camera-LiDAR fusion models, across challenging indoor and outdoor scenarios involving small, distant, and low-albedo objects, as well as strong ambient light.
 
 
 ### Code Structure
@@ -80,13 +77,27 @@ Edit the `dataset` field in the scripts to simulate for `KITTI` dataset. Increas
 
 #### KITTI
 
-|   Method           |          |          |  mAP    |          |          |       Download      |
+##### Pedestrian (3 class model)
+
+|   Method           |          |          |    mAP    |          |          |       Download      |
+|-------------------:|:--------:|:--------:|:---------:|:--------:|:--------:|:-------------------:|
+|                    |  *Clean* |   *0.05* |   *0.02*  |  *0.01*  | *0.005*  |                     |
+|  Matched Filtering |   60.11  |   55.76  |   50.03   |  47.06   |   37.01  | [model]() \| [log]()|
+|  Thresholding      |   58.63  |   57.72  |   54.80   |  49.23   |   38.62  | [model]() \| [log]()|
+|  [PPC]()           | **60.62**| **59.12**| **59.04** |**55.39** | **49.51**| [model]() \| [log]()|
+
+<!---
+
+##### Cyclist (3 class model)
+
+|   Method           |          |          |    mAP    |          |          |       Download      |
 |-------------------:|:--------:|:--------:|:---------:|:--------:|:--------:|:-------------------:|
 |                    |  *Clean* |   *0.05* |   *0.02*  |  *0.01*  | *0.005*  |                     |
 |  Matched Filtering |   71.11  |   63.31  |   57.25   |  50.25   |   40.90  | [model]() \| [log]()|
 |  Thresholding      |   70.66  |   63.65  |   58.52   |  51.20   |   41.57  | [model]() \| [log]()|
 |  [PPC]()           | **71.31**| **64.56**| **59.38** |**53.11** | **45.33**| [model]() \| [log]()|
 
+-->
 
 
 Model weights will be updated soon.
