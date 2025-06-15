@@ -71,9 +71,9 @@ Edit the `dataset` field in the scripts to simulate for `KITTI` dataset. Increas
 |   Method           |          |          |  AP@25    |          |          |       Download      |
 |-------------------:|:--------:|:--------:|:---------:|:--------:|:--------:|:-------------------:|
 |                    |  *Clean* |    *0.1* |   *0.05*  |  *0.02*  |   *0.01* |                     |
-|  Matched Filtering |   51.34  |   42.43  |   38.77   |  16.95   |   11.34  | [model]() \| [log]()|
-|  Thresholding      |   57.11  |   51.27  |   46.44   |  29.58   |   16.47  | [model]() \| [log]()|
-|  [PPC]()           | **58.61**| **54.29**| **52.46** |**38.49** | **29.42**| [model]() \| [log]()|
+|  Matched Filtering |   51.34  |   42.43  |   38.77   |  16.95   |   11.34  | [model](https://drive.google.com/file/d/1o_ADaNoi0Ws9a-2Lv7yFDQKHOakV-R0p/view?usp=sharing) \| [log](https://drive.google.com/file/d/1OkUKU9Tae6hF2kVSHcWVlU3YZH66P3gl/view?usp=sharing)|
+|  Thresholding      |   57.11  |   51.27  |   46.44   |  29.58   |   16.47  | [model](https://drive.google.com/file/d/1LznG5jQZf_fAqyQJa6WvuyEzAsX0x-8j/view?usp=sharing) \| [log](https://drive.google.com/file/d/12rsry3ZbKyFZy9oXyXBcThLYHzYRTzzd/view?usp=sharing)|
+|  **PPC**           | **58.61**| **54.29**| **52.46** |**38.49** | **29.42**| [model](https://drive.google.com/file/d/1AQ7r7k5UhbCmJpElhzA7NuKGJadN0n-E/view?usp=sharing) \| [log](https://drive.google.com/file/d/1Us8nX_4eYWnlkIJIhy9oswhQpxfHqBtK/view?usp=sharing)|
 
 #### KITTI
 
@@ -82,9 +82,9 @@ Edit the `dataset` field in the scripts to simulate for `KITTI` dataset. Increas
 |   Method           |          |          |    mAP    |          |          |       Download      |
 |-------------------:|:--------:|:--------:|:---------:|:--------:|:--------:|:-------------------:|
 |                    |  *Clean* |   *0.05* |   *0.02*  |  *0.01*  | *0.005*  |                     |
-|  Matched Filtering |   60.11  |   55.76  |   50.03   |  47.06   |   37.01  | [model]() \| [log]()|
-|  Thresholding      |   58.63  |   57.72  |   54.80   |  49.23   |   38.62  | [model]() \| [log]()|
-|  [PPC]()           | **60.62**| **59.12**| **59.04** |**55.39** | **49.51**| [model]() \| [log]()|
+|  Matched Filtering |   60.11  |   55.76  |   50.03   |  47.06   |   37.01  | [model](https://drive.google.com/file/d/1B8V3Dk4LTZEOIRjmLxymx2wRQT5M0uA4/view?usp=sharing) \| [log](https://drive.google.com/file/d/1gvC2EpiVNgzMcfOTn-TGmDeR_ch8zapb/view?usp=sharing)|
+|  Thresholding      |   58.63  |   57.72  |   54.80   |  49.23   |   38.62  | [model](https://drive.google.com/file/d/1LllqAZePuE8OwW-IdWgp9gdsnyBQZwau/view?usp=sharing) \| [log](https://drive.google.com/file/d/1B8MpaE8utVS829ZfShgCN6ANJ8HsMxDe/view?usp=sharing)|
+|  **PPC**           | **60.62**| **59.12**| **59.04** |**55.39** | **49.51**| [model](https://drive.google.com/file/d/1lU8cJ35a_kRzn2bVNab-DfeYigYMZxrp/view?usp=sharing) \| [log](https://drive.google.com/file/d/1-taW8VtjkJ5HiXcbNnH2MjtBt9_k2mmT/view?usp=sharing)|
 
 <!---
 
@@ -99,8 +99,7 @@ Edit the `dataset` field in the scripts to simulate for `KITTI` dataset. Increas
 
 -->
 
-
-Model weights will be updated soon.
+<!-- Model weights will be updated soon. -->
 
 
 
